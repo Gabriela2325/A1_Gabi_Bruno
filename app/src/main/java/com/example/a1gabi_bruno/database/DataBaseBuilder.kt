@@ -14,7 +14,7 @@ object DatabaseBuilder {
             val instance = Room.databaseBuilder(
                 context.applicationContext,
                 AppDatabase::class.java,
-                "app_database"
+                "knkdatabase"
             )
                 .fallbackToDestructiveMigration() // Garante que o banco será recriado se houver mudanças
                 .build()

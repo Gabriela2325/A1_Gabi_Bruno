@@ -1,25 +1,16 @@
-
 package com.example.a1gabi_bruno.ViewModel
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.setValue
+import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.example.a1gabi_bruno.dao.LivroDao
 import com.example.a1gabi_bruno.model.Livro
 import kotlinx.coroutines.launch
-
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -29,22 +20,11 @@ fun ListaLivros(
     navController: NavController
 ) {
     var livros by remember { mutableStateOf(emptyList<Livro>()) }
-    var livroNome by remember { mutableStateOf(TextFieldValue("")) }
     val coroutineScope = rememberCoroutineScope()
 
+    // Carregar os livros na inicialização
     LaunchedEffect(Unit) {
         livros = livroDao.getAll()
-    }
-
-    fun addLivro(nome: String) {
-        if (nome.isNotBlank()) {
-            coroutineScope.launch {
-                val novoLivro = Livro(titulo = nome)
-                livroDao.insert(novoLivro)
-                livroNome = TextFieldValue("")
-                livros = livroDao.getAll()
-            }
-        }
     }
 
     Scaffold(
@@ -60,14 +40,40 @@ fun ListaLivros(
                 .padding(innerPadding)
                 .fillMaxSize()
         ) {
-//
-            // Lista de livros
+            // Lista de livros com detalhes
             items(livros) { livro ->
-                Text(
-                    text = livro.titulo,
-                    style = MaterialTheme.typography.bodyMedium,
-                    modifier = Modifier.padding(16.dp)
-                )
+                Card(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(8.dp),
+                    elevation = CardDefaults.cardElevation(4.dp)
+                ) {
+                    Column(
+                        modifier = Modifier.padding(16.dp)
+                    ) {
+                        Text(
+                            text = "Título: ${livro.titulo}",
+                            style = MaterialTheme.typography.bodyLarge
+                        )
+                        Text(
+                            text = "Autor: ${livro.autor}",
+                            style = MaterialTheme.typography.bodyMedium
+                        )
+                        Text(
+                            text = "Gênero: ${livro.genero}",
+                            style = MaterialTheme.typography.bodyMedium
+                        )
+                        Text(
+                            text = "Status de Leitura: ${livro.statusLeitura}",
+                            style = MaterialTheme.typography.bodySmall
+                        )
+                        Spacer(modifier = Modifier.height(8.dp))
+                        Text(
+                            text = "Anotações: ${livro.anotacoes}",
+                            style = MaterialTheme.typography.bodySmall
+                        )
+                    }
+                }
             }
 
             // Espaçamento entre a lista de livros e os botões de navegação
@@ -84,7 +90,7 @@ fun ListaLivros(
                     horizontalArrangement = Arrangement.SpaceEvenly
                 ) {
                     Button(onClick = { navController.navigate("CadernoNotas") }) {
-                        Text("Caderno de anotações")
+                        Text("Caderno de Anotações")
                     }
                     Button(onClick = { navController.navigate("AdicionarLivro") }) {
                         Text("Novo Livro")
