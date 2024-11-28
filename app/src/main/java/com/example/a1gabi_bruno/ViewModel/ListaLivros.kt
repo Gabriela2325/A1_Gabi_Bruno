@@ -10,7 +10,10 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.example.a1gabi_bruno.dao.LivroDao
 import com.example.a1gabi_bruno.model.Livro
-import kotlinx.coroutines.launch
+import android.content.Intent
+import android.net.Uri
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.platform.LocalContext
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -21,6 +24,7 @@ fun ListaLivros(
 ) {
     var livros by remember { mutableStateOf(emptyList<Livro>()) }
     val coroutineScope = rememberCoroutineScope()
+    val context = LocalContext.current
 
     // Carregar os livros na inicialização
     LaunchedEffect(Unit) {
@@ -95,8 +99,35 @@ fun ListaLivros(
                     Button(onClick = { navController.navigate("AdicionarLivro") }) {
                         Text("Novo Livro")
                     }
+                    // Botão de Compartilhar
+
+                }
+
+
+            }
+            item {
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize(), // Preenche o tamanho disponível
+                    contentAlignment = Alignment.Center // Alinha o conteúdo no centro
+                ) {
+                    Button(onClick = {
+                        val shareText = livros.joinToString("\n") {
+                            "Título: ${it.titulo}\nAutor: ${it.autor}\nGênero: ${it.genero}\nStatus: ${it.statusLeitura}\nAnotações: ${it.anotacoes}\n\n"
+                        }
+                        val sendIntent = Intent().apply {
+                            action = Intent.ACTION_SEND
+                            putExtra(Intent.EXTRA_TEXT, shareText)
+                            type = "text/plain"
+                        }
+                        val shareIntent = Intent.createChooser(sendIntent, null)
+                        context.startActivity(shareIntent)
+                    }) {
+                        Text("Compartilhar")
+                    }
                 }
             }
         }
     }
 }
+
