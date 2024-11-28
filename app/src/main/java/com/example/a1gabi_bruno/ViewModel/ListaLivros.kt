@@ -14,6 +14,7 @@ import android.content.Intent
 import android.net.Uri
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.platform.LocalContext
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -44,7 +45,6 @@ fun ListaLivros(
                 .padding(innerPadding)
                 .fillMaxSize()
         ) {
-            // Lista de livros com detalhes
             items(livros) { livro ->
                 Card(
                     modifier = Modifier
@@ -76,16 +76,30 @@ fun ListaLivros(
                             text = "Anotações: ${livro.anotacoes}",
                             style = MaterialTheme.typography.bodySmall
                         )
+                        Spacer(modifier = Modifier.height(8.dp))
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.End
+                        ) {
+                            Button(
+                                onClick = {
+                                    coroutineScope.launch {
+                                        livroDao.delete(livro)
+                                        livros = livroDao.getAll() // Atualiza a lista após deletar
+                                    }
+                                }
+                            ) {
+                                Text("Deletar")
+                            }
+                        }
                     }
                 }
             }
 
-            // Espaçamento entre a lista de livros e os botões de navegação
             item {
                 Spacer(modifier = Modifier.height(20.dp))
             }
 
-            // Botões de navegação para outras telas
             item {
                 Row(
                     modifier = Modifier
@@ -99,17 +113,13 @@ fun ListaLivros(
                     Button(onClick = { navController.navigate("AdicionarLivro") }) {
                         Text("Novo Livro")
                     }
-                    // Botão de Compartilhar
-
                 }
-
-
             }
+
             item {
                 Box(
-                    modifier = Modifier
-                        .fillMaxSize(), // Preenche o tamanho disponível
-                    contentAlignment = Alignment.Center // Alinha o conteúdo no centro
+                    modifier = Modifier.fillMaxSize(),
+                    contentAlignment = Alignment.Center
                 ) {
                     Button(onClick = {
                         val shareText = livros.joinToString("\n") {
@@ -130,4 +140,3 @@ fun ListaLivros(
         }
     }
 }
-
